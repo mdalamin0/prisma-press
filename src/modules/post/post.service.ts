@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface";
 
@@ -55,30 +56,69 @@ const getMyPostFromDB = async (authorId: string) => {
 };
 
 const getPostByIdFromDB = async (postId: string) => {
-  const singlePost = await prisma.post.findUnique({
-    where: { id: postId },
-  });
 
-  if(!singlePost){
-    throw new Error("Post not found!!")
-  }
+// await prisma.post.update({
+//     where: { id: postId },
+//     data: {
+//       views: {
+//         increment: 1,
+//       },
+//     }
+//   });
 
-  const updatedPost = await prisma.post.update({
-    where: { id: postId },
-    data: {
-      views: {
-        increment: 1,
-      },
-    },
-    include: {
-      author: {
-        omit: { password: true },
-      },
-      comments: true,
-    },
-  });
+//   const post = await prisma.post.findUniqueOrThrow({
+//     where: { id: postId },
+//     include: {
+//       author: {
+//         omit: { password: true },
+//       },
+//       comments: {
+//         where: {
+//           status: CommentStatus.APROVED
+//         },
+//         orderBy: {createdAt: "desc"},
+//       },
+//       _count: {
+//         select: {
+//           comments: true
+//         }
+//       }
+//     },
+//   });
 
-  return updatedPost;
+  const transactionResult = await prisma.$transaction(
+    async(tx) => {
+      await tx.post.update({
+        where: {id: postId},
+        data: {
+          views: {increment: 1}
+        }
+      })
+// throw new Error("facke errror")
+      const post = await tx.post.findUniqueOrThrow({
+        where: {id: postId},
+        include: {
+          author: {
+            omit: {password: true}
+          },
+          comments: {
+            where: {
+              status: CommentStatus.APROVED
+            },
+            orderBy: {createdAt: "desc"}
+          },
+          _count: {
+            select: {
+              comments: true
+            }
+          }
+        }
+      })
+      return post;
+    }
+  )
+
+  return transactionResult;
 };
 
 const updatePostIntoDB = async (
