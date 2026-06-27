@@ -31,7 +31,6 @@ export const auth = (...requiredRoles: Role[]) => {
       throw new Error("You are not logged in. please login!");
     }
     const verifiedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
-
     if (!verifiedToken.success) {
       throw new Error(verifiedToken.error);
     }
