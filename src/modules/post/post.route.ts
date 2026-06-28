@@ -16,5 +16,6 @@ router.get(
 router.get("/:postId", postController.getPostById);
 router.patch("/:postId",auth(Role.USER, Role.ADMIN),postController.updatePost);
 router.delete("/:postId",auth(Role.USER, Role.ADMIN),postController.deletePost);
+router.get("/stats",auth(Role.ADMIN),postController.getPostsStats);
 
 export const postRoutes = router;

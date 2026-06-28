@@ -36,7 +36,7 @@ const getAllPosts = catchAsync(
 
 const getPostsStats = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const postsStats = await postService.getAllPostStatsFromDB()
+    const postsStats = await postService.getPostStatsFromDB()
 
     sendResponse(res, {
       success: true,
