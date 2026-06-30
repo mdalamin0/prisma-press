@@ -17,13 +17,13 @@ const createCommentsIntoDB = async (
     throw new Error("Post not found!");
   }
 
-  const createdPost = await prisma.comment.create({
+  const createComment = await prisma.comment.create({
     data: {
       ...payload,
       authorId: userId,
     },
   });
-  return createdPost;
+  return createComment;
 };
 
 const getCommentsByAuthorFromDB = async (authorId: string) => {
@@ -141,8 +141,10 @@ const moderateCommentIntoDB = async (
     throw new Error("Comment not found!")
   }
 
-  if(comment.status === "REJECT"){
-    throw new Error("Status already Rejected")
+  if(comment.status === status){
+    throw new Error(
+      `Your provided status (${status}) is already up to date.`,
+    );
   }
 
   const result = await prisma.comment.update({
@@ -155,6 +157,7 @@ const moderateCommentIntoDB = async (
   });
   return result;
 };
+
 
 export const commentService = {
   createCommentsIntoDB,

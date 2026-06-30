@@ -6,7 +6,9 @@ import { Role } from "../../../generated/prisma/enums";
 const router = Router();
 
 router.post("/", auth(Role.USER, Role.ADMIN), commentController.createComments);
+
 router.get("/author/:authorId", commentController.getCommentsByAuthorId);
+
 router.get("/:commentId", commentController.getCommentByCommentId);
 
 router.patch(
